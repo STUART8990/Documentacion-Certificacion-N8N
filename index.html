@@ -183,6 +183,7 @@
   .tag.tag-c { background: var(--green-tint); color: var(--green); }
   .tag.tag-anc { background: var(--amber-tint); color: var(--amber); }
   .tag.tag-eval { background: var(--rose-tint); color: var(--rose); }
+  .tag.tag-auto { background: var(--line); color: var(--ink-soft); }
   .check { color: var(--green); font-weight: 600; }
   .dash { color: var(--ink-soft); }
 
@@ -381,9 +382,9 @@
   </section>
 
   <section>
-    <p class="eyebrow">Los 3 tipos de caso</p>
+    <p class="eyebrow">Los 4 tipos de caso</p>
     <h2>Qué se actualiza según el resultado del PDF</h2>
-    <p class="lede">No todos los PDFs actualizan lo mismo — depende de si es una certificación normal, una auditoría no anunciada, o una evaluación.</p>
+    <p class="lede">No todos los PDFs actualizan lo mismo — depende de si es una certificación normal, una auditoría no anunciada, una evaluación, o una autoauditoría.</p>
 
     <div class="table-wrap">
       <table>
@@ -418,8 +419,18 @@
             <td class="dash">—</td>
             <td class="check">Sí</td>
           </tr>
+          <tr>
+            <td class="tag-cell"><span class="tag tag-auto">Autoauditoría</span></td>
+            <td class="dash">—</td>
+            <td class="dash">—</td>
+            <td class="dash">—</td>
+            <td class="dash">—</td>
+          </tr>
         </tbody>
       </table>
+      <p style="font-size:12.5px;color:var(--ink-soft);padding:10px 16px 14px;margin:0">
+        La Autoauditoría todavía no tiene reglas definidas — por ahora el bot no toca ningún archivo, solo la aparta para que alguien la revise a mano.
+      </p>
     </div>
   </section>
 
@@ -447,6 +458,55 @@
         <p class="file-freq">Según el tipo de caso</p>
         <h3>Indicadores FE</h3>
         <p>Fincas en proceso de certificarse, listas para certificar, y contadores de visitas por región y mes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">El correo de reporte</p>
+    <h2>Otros avisos que puedes ver cada semana</h2>
+    <p class="lede">Además de la tabla de PDFs procesados, el correo puede traer hasta 8 avisos distintos — no siempre aparecen, solo cuando aplican.</p>
+
+    <div class="file-grid">
+      <div class="file-card">
+        <p class="file-freq">Sin acción necesaria</p>
+        <h3>⏭️ PDF omitido</h3>
+        <p>El archivo adjunto no era un informe de auditoría reconocible. No se procesó nada — normalmente no requiere que hagas algo.</p>
+      </div>
+      <div class="file-card is-conditional">
+        <p class="file-freq">Requiere tu atención</p>
+        <h3>🔴 Error crítico</h3>
+        <p>Al PDF le faltaba un dato indispensable (RUC, calificación). No se procesó en absoluto — hay que revisar el documento original o pedir que lo reenvíen.</p>
+      </div>
+      <div class="file-card">
+        <p class="file-freq">Solo para tu información</p>
+        <h3>🟡 Campos opcionales faltantes</h3>
+        <p>Al PDF le faltaba un dato secundario (ej. nombre del auditor). Se procesó igual, pero vale la pena revisar ese campo en el Excel.</p>
+      </div>
+      <div class="file-card">
+        <p class="file-freq">Solo para tu información</p>
+        <h3>⚠️ Envío con retraso</h3>
+        <p>El informe llegó más de 7 días después de la fecha de la auditoría. Se procesó igual, es solo un aviso de demora.</p>
+      </div>
+      <div class="file-card is-conditional">
+        <p class="file-freq">Requiere tu atención</p>
+        <h3>🔴 Error al actualizar un Excel</h3>
+        <p>El PDF se procesó bien, pero al buscar la finca en algún archivo (por RUC) no se encontró — por ejemplo, si es la primera vez que se audita esa finca. Hay que revisar y agregarla manualmente si corresponde.</p>
+      </div>
+      <div class="file-card">
+        <p class="file-freq">Solo para tu información</p>
+        <h3>🔵 Número de fincas distinto</h3>
+        <p>El PDF indica un número de fincas distinto al que ya está en Ranking. El bot nunca actualiza ese dato solo — lo deja igual y avisa para que alguien lo revise.</p>
+      </div>
+      <div class="file-card is-conditional">
+        <p class="file-freq">Requiere revisión manual</p>
+        <h3>🟣 Autoauditoría</h3>
+        <p>Es un tipo de informe distinto a Certificación/ANC/Evaluación. Todavía no hay reglas definidas para este caso, así que el bot no toca ningún archivo — solo avisa para que se procese a mano.</p>
+      </div>
+      <div class="file-card">
+        <p class="file-freq">Sin acción necesaria</p>
+        <h3>🔁 Duplicado</h3>
+        <p>Ya se había procesado antes un informe con el mismo RUC, fecha y tipo. El bot no lo vuelve a procesar — es normal, evita que se dupliquen datos.</p>
       </div>
     </div>
   </section>
