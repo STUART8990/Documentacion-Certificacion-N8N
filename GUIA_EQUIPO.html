@@ -1,0 +1,499 @@
+<title>Cómo funciona el Bot de Certificación</title>
+<style>
+  /* Diseño de un solo tema — siempre claro, sin importar el modo del
+     dispositivo de quien lo abra (documento para compartir, no una app). */
+  :root, :root[data-theme="dark"], :root[data-theme="light"] {
+    --paper: #fbf6f2;
+    --paper-raised: #fffdfb;
+    --ink: #2f2430;
+    --ink-soft: #7d6873;
+    --line: #ecdfe1;
+    --green: #9c3f5c;
+    --green-tint: #f6e8ec;
+    --green-tint-strong: #ecd0d7;
+    --rose: #71527a;
+    --rose-tint: #efe4f0;
+    --amber: #ad7f2e;
+    --amber-tint: #f5ecd8;
+    --serif: Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body, .page-root { background: var(--paper); }
+
+  .page-root {
+    font-family: var(--sans);
+    color: var(--ink);
+    line-height: 1.55;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  h1, h2, h3 { font-family: var(--serif); text-wrap: balance; font-weight: 600; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin: 0 0 10px;
+  }
+
+  header.hero {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h1 {
+    font-size: 34px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .hero p.sub {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 56ch;
+    margin: 0 0 18px;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    background: var(--amber-tint);
+    color: var(--amber);
+    padding: 6px 12px;
+    border-radius: 100px;
+  }
+  .status-pill::before {
+    content: "";
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+
+  section { margin: 56px 0; }
+  section h2 { font-size: 24px; margin: 0 0 6px; }
+  section > p.lede { color: var(--ink-soft); font-size: 15px; margin: 0 0 24px; max-width: 60ch; }
+
+  .lead-box {
+    background: var(--green-tint);
+    border: 1px solid var(--green-tint-strong);
+    border-radius: 10px;
+    padding: 22px 26px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .lead-box strong { color: var(--green); }
+
+  /* ── Weekly cycle timeline ───────────────────────────────── */
+  .timeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .tl-step {
+    flex: 1 1 0;
+    min-width: 150px;
+    position: relative;
+    padding: 0 14px 0 0;
+  }
+  .tl-step:first-child { padding-left: 0; }
+  .tl-dot-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .tl-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .tl-line {
+    height: 2px;
+    background: var(--line);
+    flex: 1;
+  }
+  .tl-step:last-child .tl-line { display: none; }
+  .tl-when {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin: 0 0 4px;
+  }
+  .tl-what { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+  .tl-what strong { color: var(--ink); font-weight: 600; }
+
+  /* ── Numbered process steps (real sequence) ─────────────── */
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 18px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--green);
+    line-height: 1;
+  }
+  .step h3 { font-size: 16.5px; margin: 0 0 5px; font-family: var(--sans); font-weight: 600; }
+  .step p { margin: 0; font-size: 14.5px; color: var(--ink-soft); max-width: 58ch; }
+
+  /* ── Comparison table: 3 outcome types ───────────────────── */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 560px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--paper-raised);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.tag-cell { white-space: nowrap; }
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 3px 9px;
+    border-radius: 100px;
+  }
+  .tag.tag-c { background: var(--green-tint); color: var(--green); }
+  .tag.tag-anc { background: var(--amber-tint); color: var(--amber); }
+  .tag.tag-eval { background: var(--rose-tint); color: var(--rose); }
+  .check { color: var(--green); font-weight: 600; }
+  .dash { color: var(--ink-soft); }
+
+  /* ── File cards ──────────────────────────────────────────── */
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 620px) { .file-grid { grid-template-columns: 1fr; } }
+  .file-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .file-card .file-freq {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin: 0 0 8px;
+  }
+  .file-card.is-conditional .file-freq { color: var(--amber); }
+  .file-card h3 { font-family: var(--sans); font-size: 15.5px; margin: 0 0 8px; font-weight: 600; }
+  .file-card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+
+  /* ── Original / Resultados diagram ───────────────────────── */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .flow-box {
+    flex: 1 1 220px;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid var(--line);
+  }
+  .flow-box.locked {
+    background: var(--green-tint);
+    border-color: var(--green-tint-strong);
+  }
+  .flow-box.working {
+    background: var(--amber-tint);
+    border-color: var(--amber);
+  }
+  .flow-box .flow-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .flow-box.locked .flow-label { color: var(--green); }
+  .flow-box.working .flow-label { color: var(--amber); }
+  .flow-box h3 { font-family: var(--sans); font-size: 15px; margin: 0 0 6px; font-weight: 600; }
+  .flow-box p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .flow-arrow {
+    font-family: var(--serif);
+    font-size: 26px;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+
+  /* ── Checklist ───────────────────────────────────────────── */
+  .checklist { display: flex; flex-direction: column; gap: 12px; }
+  .checklist li {
+    list-style: none;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 14.5px;
+  }
+  .checklist li::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+  .checklist ul { padding: 0; margin: 0; }
+
+  .warn-box {
+    background: var(--rose-tint);
+    border: 1px solid var(--rose);
+    border-radius: 10px;
+    padding: 18px 22px;
+    font-size: 14.5px;
+  }
+  .warn-box strong { color: var(--rose); }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+</style>
+
+<div class="page-root">
+
+  <header class="hero">
+    <p class="eyebrow">Guía para el equipo · sin tecnicismos</p>
+    <h1>Así funciona el Bot de Certificación FlorEcuador</h1>
+    <p class="sub">Una explicación simple de qué hace el bot, cuándo corre, y qué necesitas revisar tú cada semana — sin entrar en cómo está construido por dentro.</p>
+    <span class="status-pill">En fase de pruebas — todavía no toca datos reales</span>
+  </header>
+
+  <section>
+    <div class="lead-box">
+      Cada semana, el bot lee los correos de auditoría que llegan de las certificadoras, saca los datos de cada PDF, y actualiza <strong>copias de prueba</strong> de los 4 Excel que el equipo usa. Tú revisas el resultado, y si todo está bien, decides promoverlo al archivo oficial.
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">El ciclo semanal</p>
+    <h2>Cuándo pasa cada cosa</h2>
+    <p class="lede">El bot no corre todo el tiempo — sigue un ritmo semanal fijo, pensado para que siempre haya una persona revisando antes de que algo se vuelva oficial.</p>
+
+    <div class="timeline">
+      <div class="tl-step">
+        <div class="tl-dot-row"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <p class="tl-when">Miércoles, medianoche</p>
+        <p class="tl-what">El bot <strong>despierta solo</strong> y revisa los correos de auditoría de la semana.</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot-row"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <p class="tl-when">Miércoles → Jueves</p>
+        <p class="tl-what">Procesa cada PDF y te <strong>envía un correo</strong> con el detalle de lo que hizo.</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot-row"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <p class="tl-when">Viernes</p>
+        <p class="tl-what">El equipo <strong>revisa</strong> los archivos actualizados antes de darlos por buenos.</p>
+      </div>
+      <div class="tl-step">
+        <div class="tl-dot-row"><div class="tl-dot"></div></div>
+        <p class="tl-when">Cuando esté OK</p>
+        <p class="tl-what">Alguien del equipo <strong>promueve manualmente</strong> los cambios al archivo oficial.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Paso a paso</p>
+    <h2>Qué hace el bot con cada PDF</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Busca los correos nuevos</h3>
+          <p>Revisa el buzón donde llegan los reportes de auditoría y toma los que tengan un PDF adjunto y no se hayan revisado todavía.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Lee cada PDF</h3>
+          <p>Saca de cada informe: RUC, finca, fecha, calificación, cuántos parámetros aplicaban, y quién hizo la auditoría.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Decide qué tipo de caso es</h3>
+          <p>Según esos datos, clasifica el PDF en uno de tres tipos (ver tabla abajo) — eso determina qué archivos va a tocar.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Actualiza los Excel correspondientes</h3>
+          <p>Escribe los cambios en las copias de prueba de los 4 archivos — nunca en el archivo oficial directamente.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div>
+          <h3>Te avisa por correo</h3>
+          <p>Manda un resumen con cada PDF procesado, su finca, y qué archivos se actualizaron — para que no tengas que adivinar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Los 3 tipos de caso</p>
+    <h2>Qué se actualiza según el resultado del PDF</h2>
+    <p class="lede">No todos los PDFs actualizan lo mismo — depende de si es una certificación normal, una auditoría no anunciada, o una evaluación.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo de caso</th>
+            <th>Visitas</th>
+            <th>Derechos</th>
+            <th>Ranking</th>
+            <th>Indicadores</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tag-cell"><span class="tag tag-c">Certificación normal</span></td>
+            <td class="check">Sí</td>
+            <td class="check">Sí</td>
+            <td class="check">Sí</td>
+            <td class="check">Sí</td>
+          </tr>
+          <tr>
+            <td class="tag-cell"><span class="tag tag-anc">Auditoría no anunciada</span></td>
+            <td class="check">Sí</td>
+            <td class="dash">—</td>
+            <td class="dash">—</td>
+            <td class="dash">—</td>
+          </tr>
+          <tr>
+            <td class="tag-cell"><span class="tag tag-eval">Evaluación</span></td>
+            <td class="check">Sí</td>
+            <td class="dash">—</td>
+            <td class="dash">—</td>
+            <td class="check">Sí</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Los 4 archivos</p>
+    <h2>Qué es cada Excel para el bot</h2>
+
+    <div class="file-grid">
+      <div class="file-card">
+        <p class="file-freq">Siempre se actualiza</p>
+        <h3>Visitas FlorEcuador consolidado</h3>
+        <p>El historial completo de todas las auditorías. Cada PDF agrega una fila nueva — nunca se borra ni se sobreescribe una anterior.</p>
+      </div>
+      <div class="file-card is-conditional">
+        <p class="file-freq">Solo certificación normal</p>
+        <h3>Derechos de certificación</h3>
+        <p>Registra el trimestre en el que se auditó cada finca y el valor a cobrar por certificación.</p>
+      </div>
+      <div class="file-card is-conditional">
+        <p class="file-freq">Solo certificación normal</p>
+        <h3>Ranking Fincas certificadas</h3>
+        <p>La calificación, trabajadores y auditorías de cada finca ya certificada.</p>
+      </div>
+      <div class="file-card is-conditional">
+        <p class="file-freq">Según el tipo de caso</p>
+        <h3>Indicadores FE</h3>
+        <p>Fincas en proceso de certificarse, listas para certificar, y contadores de visitas por región y mes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">La regla de oro</p>
+    <h2>El archivo oficial nunca se toca solo</h2>
+    <p class="lede">Esto es lo más importante de todo el diseño: el bot jamás escribe directamente sobre el archivo que el equipo usa a diario.</p>
+
+    <div class="flow-diagram">
+      <div class="flow-box locked">
+        <p class="flow-label">Archivo Original</p>
+        <h3>El que usa el equipo</h3>
+        <p>El bot solo lo <em>lee</em>, nunca escribe ahí. Queda protegido de cualquier error del proceso automático.</p>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box working">
+        <p class="flow-label">Carpeta de resultados</p>
+        <h3>Donde trabaja el bot</h3>
+        <p>Ahí sí escribe y actualiza cada semana. Es una copia — se puede revisar, corregir o descartar sin ningún riesgo.</p>
+      </div>
+    </div>
+
+    <p class="lede" style="margin-bottom:0">Solo cuando una persona del equipo revisa esta copia y la aprueba, se reemplaza manualmente el archivo Original — nunca lo hace el bot por su cuenta.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Tu parte</p>
+    <h2>Qué revisar cada semana</h2>
+
+    <ul class="checklist">
+      <li>Abre el correo de reporte semanal y revisa la tabla — cada fila es un PDF procesado, con su finca y qué archivos tocó.</li>
+      <li>Si un PDF salió como "omitido" o "error crítico", revisa el archivo adjunto o pide que lo reenvíen — el bot no pudo leerlo.</li>
+      <li>Antes de aprobar, compara la carpeta de resultados contra lo que esperabas — sobre todo si algún caso salió como "Auditoría no anunciada" (solo toca Visitas, es normal que los otros archivos no cambien).</li>
+      <li>Cuando todo esté correcto, promueve manualmente los cambios al archivo Original.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="warn-box">
+      <strong>Mientras el bot corre (miércoles en la madrugada):</strong> evita editar los archivos Excel en SharePoint en ese momento, para que no se cruce con lo que el bot está leyendo. El resto de la semana no hay ningún problema en usarlos con normalidad.
+    </div>
+  </section>
+
+  <footer>
+    <span>Certificación Expoflores — Bot de automatización</span>
+    <span>Guía actualizada 2026-07-07</span>
+  </footer>
+
+</div>
